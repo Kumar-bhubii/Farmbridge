@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - FarmBridge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="extras.css">
+</head>
+<body class="auth-body">
+
+  <div class="auth-wrap">
+
+    <!-- LEFT: branding panel -->
+    <aside class="auth-side">
+      <a href="index.html" class="logo">🌾 Farm<span>Bridge</span></a>
+      <div class="auth-side-text">
+        <p class="script">Welcome to the bridge.</p>
+        <p>List your produce or post what you need. FarmBridge helps both sides find each other.</p>
+        <ul>
+          <li>✔ Simple forms, large buttons</li>
+          <li>✔ Transparent matching</li>
+          <li>✔ Built for small farmers</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- RIGHT: form -->
+    <main class="auth-main">
+      <div class="auth-card">
+
+        <div class="tabs">
+          <button class="tab active" id="tab-login" type="button">Log in</button>
+          <button class="tab" id="tab-signup" type="button">Sign up</button>
+        </div>
+
+        <div id="message" class="message" hidden></div>
+
+        <!-- LOGIN FORM -->
+        <form id="login-form" class="form">
+          <label>Phone number
+            <input type="tel" id="login-phone" placeholder="10-digit mobile number" maxlength="10" required>
+          </label>
+          <label>Password
+            <input type="password" id="login-password" placeholder="Your password" required>
+          </label>
+          <button class="btn btn-solid" type="submit">Log in →</button>
+        </form>
+
+        <!-- SIGNUP FORM -->
+        <form id="signup-form" class="form" hidden>
+          <p class="form-label">I am a...</p>
+          <div class="role-pick">
+            <label class="role-option">
+              <input type="radio" name="role" value="farmer" checked>
+              <span>🌾<b>Farmer</b></span>
+            </label>
+            <label class="role-option">
+              <input type="radio" name="role" value="buyer">
+              <span>🛒<b>Buyer</b></span>
+            </label>
+          </div>
+
+          <label>Full name
+            <input type="text" id="signup-name" placeholder="e.g. Ramesh Mondal" required>
+          </label>
+          <label>Phone number
+            <input type="tel" id="signup-phone" placeholder="10-digit mobile number" maxlength="10" required>
+          </label>
+          <label>Village / Town
+            <input type="text" id="signup-area" placeholder="e.g. Bankura" required>
+          </label>
+          <label>Password
+            <input type="password" id="signup-password" placeholder="At least 6 characters" required>
+          </label>
+          <button class="btn btn-solid" type="submit">Create account →</button>
+        </form>
+
+        <p class="demo-note">Prototype note: accounts are saved only in this browser.</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="auth.js"></script>
+  <script src="login.js"></script>
+  <script src="extras.js"></script>
+</body>
+</html>

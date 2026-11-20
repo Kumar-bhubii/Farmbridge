@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reference Prices - FarmBridge</title>
+  <meta name="description" content="Dated, source-labelled market price references for crops in the FarmBridge pilot.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="extras.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="dash-body" data-role="any">
+  <header class="topbar">
+    <a href="index.html" class="logo">🌾 Farm<span>Bridge</span></a>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <span class="avatar" data-avatar>🌾</span>
+        <div><b data-user="name">User</b><small data-user="area"></small></div>
+      </div>
+      <button id="logout" class="btn-small" type="button" data-i18n="logout">Log out</button>
+    </div>
+  </header>
+
+  <main class="dash-main">
+    <a href="farmer.html" class="back-link" data-back data-i18n="back">← Back to dashboard</a>
+    <section class="welcome">
+      <p class="eyebrow dark">MARKET REFERENCES</p>
+      <h1><span data-i18n="prices_title">Reference prices</span> <span class="script-inline">today</span></h1>
+      <p class="section-sub" data-i18n="prices_sub">Dated market-price references. These are references only — never a promised selling price.</p>
+    </section>
+
+    <div class="fb-note">⚠️ <b>Prototype data:</b> prices below are clearly labelled <i>sample references</i> for the demo. In the pilot they will be replaced with dated figures from public sources such as Agmarknet, with market, date and unit shown.</div>
+
+    <div class="fb-grid-2">
+      <section class="fb-panel">
+        <h3>📋 Today's reference table</h3>
+        <div style="overflow-x:auto">
+          <table class="price-table">
+            <thead><tr><th>Crop</th><th>Market</th><th>Min–Max (₹/kg)</th><th>Modal</th><th>7-day</th><th>Buyer demand</th><th>Source • Date</th></tr></thead>
+            <tbody id="price-body"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="fb-panel">
+        <h3>📈 14-day trend</h3>
+        <label class="form" style="display:block;margin-bottom:10px">Crop <select id="trend-crop"></select></label>
+        <canvas id="trend-chart" height="240"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="data.js"></script>
+  <script src="matching.js"></script>
+  <script src="prices.js"></script>
+  <script src="extras.js"></script>
+</body>
+</html>

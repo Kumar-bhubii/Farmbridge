@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Demand Board - FarmBridge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="extras.css">
+</head>
+<body class="dash-body" data-role="farmer">
+
+  <header class="topbar">
+    <a href="index.html" class="logo">🌾 Farm<span>Bridge</span></a>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <span class="avatar">🌾</span>
+        <div>
+          <b data-user="name">Farmer</b>
+          <small data-user="area"></small>
+        </div>
+      </div>
+      <button id="logout" class="btn-small" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main class="dash-main">
+    <a href="farmer.html" class="back-link">← Back to dashboard</a>
+
+    <section class="welcome">
+      <p class="eyebrow dark">BUYER DEMAND BOARD</p>
+      <h1>What buyers <span class="script-inline">need</span></h1>
+      <p class="section-sub">Open requirements from buyers. Requirements are posted by buyers themselves, so please verify details before agreeing a deal.</p>
+    </section>
+
+    <div class="form filter-bar">
+      <label>Crop
+        <select id="f-crop"><option value="">All crops</option></select>
+      </label>
+      <label>Location contains
+        <input type="text" id="f-area" placeholder="e.g. Bishnupur">
+      </label>
+      <button id="f-reset" class="btn-ghost filter-reset" type="button">Reset filters</button>
+    </div>
+
+    <div id="result-summary" class="result-summary"></div>
+    <div id="board-grid" class="listing-grid"></div>
+
+    <div id="empty-state" class="empty-state" hidden>
+      <span>🔍</span>
+      <h3>No requirements match these filters</h3>
+      <p>Try a different crop or reset the filters. You can also load sample data below.</p>
+    </div>
+
+    <div class="demo-bar">
+      🧪 <b>Demo tools:</b>
+      <button id="load-sample" class="btn-small-dark" type="button">Load sample data</button>
+      <button id="clear-sample" class="btn-small-dark" type="button">Remove sample data</button>
+    </div>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="data.js"></script>
+  <script src="matching.js"></script>
+  <script src="enquire-modal.js"></script>
+  <script src="board.js"></script>
+  <script src="demo.js"></script>
+  <script src="extras.js"></script>
+</body>
+</html>

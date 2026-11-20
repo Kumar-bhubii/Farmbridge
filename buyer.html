@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Dashboard - FarmBridge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="extras.css">
+</head>
+<body class="dash-body" data-role="buyer">
+
+  <header class="topbar">
+    <a href="index.html" class="logo">🌾 Farm<span>Bridge</span></a>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <span class="avatar">🛒</span>
+        <div>
+          <b data-user="name">Buyer</b>
+          <small data-user="area"></small>
+        </div>
+      </div>
+      <button id="logout" class="btn-small" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main class="dash-main">
+
+    <section class="welcome">
+      <p class="eyebrow dark">BUYER DEMAND BOARD</p>
+      <h1>Hello, <span class="script-inline" data-first-name>Buyer</span> 👋</h1>
+      <p class="section-sub">Post what you need and discover farmers who can supply it.</p>
+    </section>
+
+    <section class="dash-stats">
+      <div class="dash-stat"><span>📝</span><strong id="stat-requests">0</strong><small>My requirements</small></div>
+      <div class="dash-stat"><span>🎯</span><strong id="stat-matches">0</strong><small>Supply matches</small></div>
+      <div class="dash-stat"><span>💬</span><strong id="stat-enquiries">0</strong><small>Enquiries</small></div>
+    </section>
+
+    <section class="action-grid">
+      <div class="action-card">
+        <div class="icon-bubble">➕</div>
+        <h3>Post a requirement</h3>
+        <p>Tell farmers what you need: crop, quantity, area and date.</p>
+        <button id="open-form" class="btn btn-solid" type="button">Post requirement</button>
+      </div>
+      <div class="action-card">
+        <div class="icon-bubble">🌾</div>
+        <h3>Browse available supply</h3>
+        <p>Search farmer listings by crop, quantity and location.</p>
+        <a href="supply.html" class="btn btn-solid">Browse supply</a>
+      </div>
+      <div class="action-card">
+        <div class="icon-bubble">🧩</div>
+        <h3>Small-lot matches</h3>
+        <p>See several farmers who together can meet your order.</p>
+        <a href="matches.html" class="btn btn-solid">View matches</a>
+      </div>
+      <div class="action-card">
+        <div class="icon-bubble">💬</div>
+        <h3>Enquiries &amp; orders</h3>
+        <p>Track every enquiry from first message to pickup.</p>
+        <a href="enquiries.html" class="btn btn-solid">View enquiries</a>
+      </div>
+    </section>
+        <!-- ===== MORE TOOLS ===== -->
+    <h2 style="margin:34px 0 14px"><span data-i18n="tools">More tools</span> <span class="script-inline">&amp; insights</span></h2>
+    <section class="action-grid">
+      <div class="action-card"><div class="icon-bubble">💹</div><h3>Reference prices</h3><p>Dated, source-labelled market references with a 14-day trend.</p><a href="prices.html" class="btn btn-solid">Open prices</a></div>
+      <div class="action-card"><div class="icon-bubble">🗺️</div><h3>Supply &amp; demand map</h3><p>See crop lots and buyer needs around you on the map.</p><a href="map.html" class="btn btn-solid">Open map</a></div>
+      <div class="action-card"><div class="icon-bubble">📈</div><h3>Demand insights</h3><p>Charts of supply, demand and order progress.</p><a href="insights.html" class="btn btn-solid">View insights</a></div>
+    </section>
+
+    <!-- ===== POST REQUIREMENT FORM ===== -->
+    <section id="form-section" class="form-section" hidden>
+      <h2>Post a <span class="script-inline">requirement</span></h2>
+      <div id="form-message" class="message" hidden></div>
+
+      <form id="demand-form" class="form form-grid">
+        <label>Crop needed
+          <select id="crop" required>
+            <option value="">Choose a crop...</option>
+          </select>
+        </label>
+
+        <label>Quantity needed (kg)
+          <input type="text" id="quantity" inputmode="numeric" placeholder="e.g. 500" required>
+        </label>
+
+        <label>Collection area
+          <input type="text" id="area" placeholder="Village / town / market" required>
+        </label>
+
+        <label>Needed by
+          <input type="date" id="required-date" required>
+        </label>
+
+        <label>Quality preference (optional)
+          <select id="quality">
+            <option value="">No preference</option>
+            <option value="Fresh">Fresh</option>
+            <option value="Good">Good</option>
+            <option value="Mixed">Mixed is fine</option>
+          </select>
+        </label>
+
+        <label>Notes (optional)
+          <input type="text" id="notes" placeholder="e.g. Weekly supply preferred">
+        </label>
+
+        <div class="form-buttons full">
+          <button class="btn btn-solid" type="submit">Post requirement</button>
+          <button id="cancel-form" class="btn btn-ghost" type="button">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===== MY REQUIREMENTS ===== -->
+    <section class="listings-section">
+      <h2>My <span class="script-inline">requirements</span></h2>
+      <div id="demand-grid" class="listing-grid"></div>
+
+      <div id="empty-state" class="empty-state">
+        <span>🛒</span>
+        <h3>No requirements posted yet</h3>
+        <p>Click "Post requirement" to tell farmers what you need.</p>
+      </div>
+    </section>
+
+    <div class="demo-bar">
+      🧪 <b>Demo tools:</b>
+      <button id="load-sample" class="btn-small-dark" type="button">Load sample data</button>
+      <button id="clear-sample" class="btn-small-dark" type="button">Remove sample data</button>
+    </div>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="data.js"></script>
+  <script src="matching.js"></script>
+  <script src="buyer.js"></script>
+  <script src="demo.js"></script>
+  <script src="extras.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matches - FarmBridge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="extras.css">
+</head>
+<body class="dash-body" data-role="buyer">
+
+  <header class="topbar">
+    <a href="index.html" class="logo">🌾 Farm<span>Bridge</span></a>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <span class="avatar">🛒</span>
+        <div>
+          <b data-user="name">Buyer</b>
+          <small data-user="area"></small>
+        </div>
+      </div>
+      <button id="logout" class="btn-small" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main class="dash-main">
+    <a href="buyer.html" class="back-link">← Back to dashboard</a>
+
+    <section class="welcome">
+      <p class="eyebrow dark">EXPLAINABLE MATCHING</p>
+      <h1>Small-lot <span class="script-inline">matches</span></h1>
+      <p class="section-sub">Pick one of your requirements. FarmBridge scores every available lot out of 100 and shows how several farmers can meet your order together.</p>
+    </section>
+
+    <div id="no-demands" class="empty-state" hidden>
+      <span>📝</span>
+      <h3>No open requirements yet</h3>
+      <p>Post a requirement on your dashboard first, then come back to see matches. You can also load sample data below.</p>
+    </div>
+
+    <div id="picker" class="match-picker" hidden>
+      <label>Choose a requirement
+        <select id="demand-select"></select>
+      </label>
+    </div>
+
+    <div id="match-result"></div>
+
+    <div class="demo-bar">
+      🧪 <b>Demo tools:</b>
+      <button id="load-sample" class="btn-small-dark" type="button">Load sample data</button>
+      <button id="clear-sample" class="btn-small-dark" type="button">Remove sample data</button>
+    </div>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="data.js"></script>
+  <script src="matching.js"></script>
+  <script src="matches.js"></script>
+  <script src="demo.js"></script>
+  <script src="extras.js"></script>
+</body>
+</html>

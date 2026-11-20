@@ -1,18 +1,274 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FarmBridge</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmBridge - Connecting Farmers. Empowering Markets.</title>
+
+  <!-- Fonts: Playfair Display (headings), DM Sans (body), Dancing Script (cursive accents) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="extras.css">
 </head>
 <body>
 
-    <h1>Welcome to FarmBridge</h1>
+  <!-- ============ NAVBAR ============ -->
+  <header class="navbar" id="navbar">
+    <a href="index.html" class="logo">🌾 Farm<span>Bridge</span></a>
+    <nav class="nav-links">
+           <a href="#problem" data-i18n="nav_gap">The Gap</a>
+      <a href="#how" data-i18n="nav_how">How it works</a>
+      <a href="#aggregation" data-i18n="nav_agg">Small-lot magic</a>
+      <a href="#features" data-i18n="nav_features">Features</a>
+      <select id="language" aria-label="Language">...keep as is...</select>
+      <a href="admin.html">🛡️ Admin</a>
+      <a href="#get-started" class="nav-cta" data-i18n="get_started">Get started</a> 
+    </nav>
+  </header>
 
-    <p>Connecting Farmers. Empowering Markets.</p>
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
 
-    <script src="script.js"></script>
+    <div class="hero-text">
+      <p class="eyebrow fade-in d1">LOCAL AGRICULTURE • DIGITAL ACCESS</p>
+      <h1 class="fade-in d2">Connecting Farmers.</h1>
+      <p class="script fade-in d3">Empowering Markets.</p>
+      <p class="hero-sub fade-in d4">
+        A localized supply-and-demand platform that helps small farmers
+        discover buyers, combine small-lot produce and make
+        better-informed selling decisions.
+      </p>
+      <div class="hero-buttons fade-in d5">
+        <a href="#get-started" class="btn btn-primary">Get started →</a>
+        <a href="#how" class="btn btn-outline">See how it works</a>
+      </div>
+    </div>
+
+    <div class="hero-visual fade-in d3">
+      <!-- Animated farm scene drawn with SVG -->
+      <svg viewBox="0 0 400 400" class="scene" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f6c76b"/>
+            <stop offset="55%" stop-color="#f2a65a"/>
+            <stop offset="100%" stop-color="#e0805a"/>
+          </linearGradient>
+        </defs>
+        <rect width="400" height="400" rx="28" fill="url(#sky)"/>
+        <circle class="sun-glow" cx="200" cy="190" r="70" fill="#fff3c4" opacity="0.35"/>
+        <circle class="sun" cx="200" cy="190" r="42" fill="#fff6d6"/>
+        <path d="M0 240 Q100 200 200 235 T400 225 V400 H0Z" fill="#7da35f"/>
+        <path d="M0 280 Q120 245 230 280 T400 270 V400 H0Z" fill="#4f8a4a"/>
+        <path d="M0 325 Q150 295 280 325 T400 315 V400 H0Z" fill="#2f6b3f"/>
+        <!-- crop rows -->
+        <g stroke="#1f5233" stroke-width="3" stroke-linecap="round" opacity="0.7">
+          <path d="M30 400 L120 330"/><path d="M90 400 L170 332"/>
+          <path d="M150 400 L220 335"/><path d="M210 400 L270 338"/>
+          <path d="M270 400 L320 335"/><path d="M330 400 L370 330"/>
+        </g>
+        <!-- bridge arc -->
+        <path class="bridge" d="M40 300 Q200 150 360 300" fill="none" stroke="#fffdf5" stroke-width="4" stroke-dasharray="8 10" stroke-linecap="round"/>
+      </svg>
+
+      <div class="chip chip1">🍅 Tomatoes • 250 kg</div>
+      <div class="chip chip2">📍 Bankura, West Bengal</div>
+      <div class="chip chip3">✅ 94% match</div>
+    </div>
+
+    <a href="#problem" class="scroll-hint">scroll ↓</a>
+  </section>
+
+  <!-- ============ MARQUEE ============ -->
+  <div class="marquee">
+    <div class="marquee-track">
+      <span>🍅 Tomato</span><span>🥔 Potato</span><span>🍆 Brinjal</span><span>🥕 Carrot</span>
+      <span>🌶️ Chilli</span><span>🥬 Cabbage</span><span>🌽 Maize</span><span>🧅 Onion</span>
+      <span>🍅 Tomato</span><span>🥔 Potato</span><span>🍆 Brinjal</span><span>🥕 Carrot</span>
+      <span>🌶️ Chilli</span><span>🥬 Cabbage</span><span>🌽 Maize</span><span>🧅 Onion</span>
+    </div>
+  </div>
+
+  <!-- ============ STATS ============ -->
+  <section class="stats">
+    <div class="stat reveal">
+      <strong class="count" data-target="4">0</strong>
+      <span>Steps from listing to pickup</span>
+    </div>
+    <div class="stat reveal">
+      <strong class="count" data-target="100">0</strong>
+      <span>Point transparent match score</span>
+    </div>
+    <div class="stat reveal">
+      <strong class="count" data-target="3">0</strong>
+      <span>Languages: Bengali, Hindi, English</span>
+    </div>
+    <div class="stat reveal">
+      <strong class="count" data-target="1">0</strong>
+      <span>Bridge between supply and demand</span>
+    </div>
+  </section>
+
+  <!-- ============ PROBLEM ============ -->
+  <section id="problem" class="section">
+    <p class="eyebrow dark reveal">01 / CONTEXT</p>
+    <h2 class="reveal">The market-access <span class="script-inline">gap</span></h2>
+    <p class="section-sub reveal">Small farmers often rely on fragmented local networks to find buyers and coordinate sales.</p>
+
+    <div class="card-grid">
+      <div class="card reveal">
+        <div class="icon-bubble">🔎</div>
+        <h3>Buyer discovery</h3>
+        <p>A farmer may know what is ready to harvest but not which nearby buyer needs that crop, quantity or delivery window.</p>
+      </div>
+      <div class="card reveal">
+        <div class="icon-bubble">📦</div>
+        <h3>Fragmented quantities</h3>
+        <p>A buyer seeking a larger lot may need to contact several small producers separately.</p>
+      </div>
+      <div class="card reveal">
+        <div class="icon-bubble">💰</div>
+        <h3>Price information</h3>
+        <p>Prices vary by place, grade and date. Farmers need clear, dated reference information, not unsupported promises.</p>
+      </div>
+      <div class="card reveal">
+        <div class="icon-bubble">🚜</div>
+        <h3>Pickup coordination</h3>
+        <p>Harvest timing, location, transport and buyer schedules must align for a transaction to work.</p>
+      </div>
+    </div>
+
+    <div class="callout reveal">
+      <strong>THE DESIGN OPPORTUNITY</strong>
+      <p>Make local supply visible, make buyer demand discoverable, and make the next step easier to coordinate.</p>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="how" class="section dark-section">
+    <p class="eyebrow light reveal">02 / PROPOSED SOLUTION</p>
+    <h2 class="light reveal">One bridge between <span class="script-inline gold">supply &amp; demand</span></h2>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <h3>List</h3>
+        <p>Farmer adds crop, quantity, expected harvest date, location and photos.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <h3>Post demand</h3>
+        <p>Buyer specifies crop, quantity, quality preference and required date.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <h3>Match</h3>
+        <p>The platform ranks compatible listings using transparent criteria.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">04</div>
+        <h3>Coordinate</h3>
+        <p>Users review details, discuss terms and confirm pickup or collection.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ AGGREGATION ============ -->
+  <section id="aggregation" class="section">
+    <p class="eyebrow dark reveal">04 / DIFFERENTIATION</p>
+    <h2 class="reveal">The core innovation: <span class="script-inline">small-lot aggregation</span></h2>
+    <p class="section-sub reveal">A buyer can discover several compatible farmer listings that together meet one requirement.</p>
+
+    <div class="agg-box reveal">
+      <div class="agg-head">
+        <div>
+          <small>ILLUSTRATIVE BUYER REQUEST</small>
+          <h3>500 kg Tomatoes</h3>
+        </div>
+        <div class="agg-total">🍅 500 kg</div>
+      </div>
+
+      <div class="bar-row">
+        <span>Farmer A</span>
+        <div class="bar"><div class="fill" data-width="20%"></div></div>
+        <b>100 kg</b>
+      </div>
+      <div class="bar-row">
+        <span>Farmer B</span>
+        <div class="bar"><div class="fill gold" data-width="30%"></div></div>
+        <b>150 kg</b>
+      </div>
+      <div class="bar-row">
+        <span>Farmer C</span>
+        <div class="bar"><div class="fill terra" data-width="50%"></div></div>
+        <b>250 kg</b>
+      </div>
+      <p class="agg-note">Combined potential supply = <b>500 kg</b> ✔</p>
+    </div>
+
+    <h3 class="sub-heading reveal">How the matching engine scores</h3>
+    <div class="score-grid">
+      <div class="score reveal"><div class="ring">40</div><h4>Crop</h4><p>Same produce type</p></div>
+      <div class="score reveal"><div class="ring">30</div><h4>Quantity</h4><p>Single lot or combination</p></div>
+      <div class="score reveal"><div class="ring">20</div><h4>Location</h4><p>Collection area / distance</p></div>
+      <div class="score reveal"><div class="ring">10</div><h4>Date</h4><p>Harvest and buyer date</p></div>
+    </div>
+    <p class="fineprint reveal">A match is a lead for users to verify, not a guaranteed sale, quality certification or transport booking.</p>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section id="features" class="section alt">
+    <p class="eyebrow dark reveal">03 / PRODUCT EXPERIENCE</p>
+    <h2 class="reveal">What users can <span class="script-inline">actually do</span></h2>
+
+    <div class="feature-grid">
+      <div class="feature reveal"><span>👩‍🌾</span><h3>Farmer workspace</h3><p>Create a profile, publish crop lots, update quantity, harvest date and status.</p></div>
+      <div class="feature reveal"><span>📋</span><h3>Buyer demand board</h3><p>Post requirements and browse available supply by crop, quantity and location.</p></div>
+      <div class="feature reveal"><span>🧠</span><h3>Explainable matching</h3><p>See exactly why a listing is relevant: crop, quantity, distance and date.</p></div>
+      <div class="feature reveal"><span>📊</span><h3>Reference prices</h3><p>Dated market-price references with clearly labelled source and date.</p></div>
+      <div class="feature reveal"><span>🚚</span><h3>Order &amp; pickup status</h3><p>Track enquiry, discussion, accepted order, collection and completion.</p></div>
+      <div class="feature reveal"><span>🗣️</span><h3>Accessible by design</h3><p>Large tap targets, simple forms, low-data pages and Bengali / Hindi / English.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ GET STARTED ============ -->
+  <section id="get-started" class="section">
+    <p class="eyebrow dark reveal">GET STARTED</p>
+    <h2 class="reveal">Who <span class="script-inline">are you?</span></h2>
+
+    <div class="role-grid">
+      <a href="login.html?role=farmer" class="role-card reveal">
+        <span class="role-icon">🌾</span>
+        <h3>I am a Farmer</h3>
+        <p>List what you can supply and find buyers nearby.</p>
+        <span class="role-arrow">Continue →</span>
+      </a>
+      <a href="login.html?role=buyer" class="role-card reveal">
+        <span class="role-icon">🛒</span>
+        <h3>I am a Buyer</h3>
+        <p>Post what you need and discover available produce.</p>
+        <span class="role-arrow">Continue →</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ VISION ============ -->
+  <section class="vision">
+    <p class="eyebrow light">OUR VISION</p>
+    <p class="vision-text">A trusted digital bridge between local agricultural supply and buyer demand, <span class="script-inline gold">built around the realities of small farmers.</span></p>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <p><b>FarmBridge</b> • Innovate India Hackathon Concept • Built by Bhuban Kumar</p>
+    <p class="small">B.Tech CSE, Bankura Unnayani Institute of Engineering • A proposed student concept; all sample data is illustrative.</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="extras.js"></script>
 </body>
 </html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farmer Dashboard - FarmBridge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=DM+Sans:wght@400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="extras.css">
+</head>
+<body class="dash-body" data-role="farmer">
+
+  <header class="topbar">
+    <a href="index.html" class="logo">🌾 Farm<span>Bridge</span></a>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <span class="avatar">🌾</span>
+        <div>
+          <b data-user="name">Farmer</b>
+          <small data-user="area"></small>
+        </div>
+      </div>
+      <button id="logout" class="btn-small" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main class="dash-main">
+
+    <section class="welcome">
+      <p class="eyebrow dark">FARMER WORKSPACE</p>
+      <h1>Hello, <span class="script-inline" data-first-name>Farmer</span> 👋</h1>
+      <p class="section-sub">List what you can supply and see which buyers need your crops.</p>
+    </section>
+
+    <section class="dash-stats">
+      <div class="dash-stat"><span>📦</span><strong id="stat-listings">0</strong><small>My crop lots</small></div>
+      <div class="dash-stat"><span>🎯</span><strong id="stat-matches">0</strong><small>Buyer matches</small></div>
+      <div class="dash-stat"><span>💬</span><strong id="stat-enquiries">0</strong><small>Enquiries</small></div>
+    </section>
+
+    <section class="action-grid">
+      <div class="action-card">
+        <div class="icon-bubble">➕</div>
+        <h3>Add a crop lot</h3>
+        <p>Tell buyers what you can supply: crop, quantity and harvest date.</p>
+        <button id="open-form" class="btn btn-solid" type="button">Add crop lot</button>
+      </div>
+      <div class="action-card">
+        <div class="icon-bubble">📋</div>
+        <h3>Buyer demand board</h3>
+        <p>See what nearby buyers are looking for right now.</p>
+        <a href="board.html" class="btn btn-solid">Open demand board</a>
+      </div>
+      <div class="action-card">
+        <div class="icon-bubble">📊</div>
+        <h3>Reference prices</h3>
+        <p>Dated market-price references to help you decide.</p>
+        <a href="prices.html" class="btn btn-solid">View prices</a>
+      </div>
+      <div class="action-card">
+        <div class="icon-bubble">💬</div>
+        <h3>Enquiries &amp; orders</h3>
+        <p>Reply to buyers and track each order through to pickup.</p>
+        <a href="enquiries.html" class="btn btn-solid">View enquiries</a>
+      </div>
+    </section>
+        <!-- ===== MORE TOOLS ===== -->
+    <h2 style="margin:34px 0 14px"><span data-i18n="tools">More tools</span> <span class="script-inline">&amp; insights</span></h2>
+    <section class="action-grid">
+      <div class="action-card"><div class="icon-bubble">💹</div><h3>Reference prices</h3><p>Dated, source-labelled market references with a 14-day trend.</p><a href="prices.html" class="btn btn-solid">Open prices</a></div>
+      <div class="action-card"><div class="icon-bubble">🗺️</div><h3>Supply &amp; demand map</h3><p>See crop lots and buyer needs around you on the map.</p><a href="map.html" class="btn btn-solid">Open map</a></div>
+      <div class="action-card"><div class="icon-bubble">📈</div><h3>Demand insights</h3><p>Charts of supply, demand and order progress.</p><a href="insights.html" class="btn btn-solid">View insights</a></div>
+    </section>
+
+    <!-- ===== ADD CROP LOT FORM (hidden until button clicked) ===== -->
+    <section id="form-section" class="form-section" hidden>
+      <h2>Add a <span class="script-inline">crop lot</span></h2>
+      <div id="form-message" class="message" hidden></div>
+
+      <form id="listing-form" class="form form-grid">
+        <label>Crop
+          <select id="crop" required>
+            <option value="">Choose a crop...</option>
+          </select>
+        </label>
+
+        <label>Quantity (kg)
+          <input type="text" id="quantity" inputmode="numeric" placeholder="e.g. 150" required>
+        </label>
+
+        <label>Expected harvest date
+          <input type="date" id="harvest-date" required>
+        </label>
+
+        <label>Collection location
+          <input type="text" id="area" placeholder="Village / town" required>
+        </label>
+
+        <label>Quality (optional)
+          <select id="grade">
+            <option value="">Not specified</option>
+            <option value="Fresh">Fresh</option>
+            <option value="Good">Good</option>
+            <option value="Mixed">Mixed</option>
+          </select>
+        </label>
+
+        <label>Photo (optional)
+          <input type="file" id="photo" accept="image/*">
+        </label>
+
+        <label class="full">Notes (optional)
+          <input type="text" id="notes" placeholder="e.g. Organic, can be picked up from the roadside">
+        </label>
+
+        <img id="photo-preview" class="photo-preview full" alt="Photo preview" hidden>
+
+        <div class="form-buttons full">
+          <button class="btn btn-solid" type="submit">Save crop lot</button>
+          <button id="cancel-form" class="btn btn-ghost" type="button">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===== MY LISTINGS ===== -->
+    <section class="listings-section">
+      <h2>My crop <span class="script-inline">lots</span></h2>
+      <div id="listing-grid" class="listing-grid"></div>
+
+      <div id="empty-state" class="empty-state">
+        <span>🌱</span>
+        <h3>No crop lots yet</h3>
+        <p>Click "Add crop lot" to list your first harvest.</p>
+      </div>
+    </section>
+    <div class="demo-bar">
+      🧪 <b>Demo tools:</b>
+      <button id="load-sample" class="btn-small-dark" type="button">Load sample data</button>
+      <button id="clear-sample" class="btn-small-dark" type="button">Remove sample data</button>
+    </div>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="data.js"></script>
+  <script src="matching.js"></script>
+  <script src="listings.js"></script>
+  <script src="demo.js"></script>
+  <script src="extras.js"></script>
+</body>
+</html>
