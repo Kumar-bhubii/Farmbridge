@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="extras.css">
 </head>
 <body class="dash-body" data-no-fab>
+
   <header class="topbar">
     <a href="index.html" class="logo">🌾 Farm<span>Bridge</span></a>
     <div class="topbar-right">
@@ -22,6 +23,7 @@
   </header>
 
   <main class="dash-main">
+    <!-- PIN gate (prototype only - real admin login comes with Firebase roles) -->
     <section id="gate" class="fb-panel pin-gate">
       <div class="icon-bubble" style="margin:0 auto 10px">🛡️</div>
       <h3>Moderator access</h3>
@@ -38,12 +40,14 @@
         <h1><span data-i18n="admin_title">Admin &amp; moderation</span> <span class="script-inline">desk</span></h1>
         <p class="section-sub" data-i18n="admin_sub">Review listings, requirements and user reports to keep the platform trustworthy.</p>
       </section>
+
       <div class="kpi-row">
         <div class="kpi"><strong id="a-users">0</strong><small data-i18n="users">Users</small></div>
         <div class="kpi"><strong id="a-lots">0</strong><small data-i18n="lots">Crop lots</small></div>
         <div class="kpi"><strong id="a-demands">0</strong><small data-i18n="demands">Buyer requirements</small></div>
         <div class="kpi"><strong id="a-reports">0</strong><small>Open reports</small></div>
       </div>
+
       <div class="admin-tabs" role="tablist">
         <button type="button" data-tab="reports" class="active">🚩 Reports</button>
         <button type="button" data-tab="lots">🌾 Crop lots</button>
@@ -54,9 +58,17 @@
     </div>
   </main>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="firebase-sync.js"></script>
   <script src="auth.js"></script>
   <script src="data.js"></script>
+  <script src="translations.js"></script>
   <script src="extras.js"></script>
+  <script src="voice.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>
+

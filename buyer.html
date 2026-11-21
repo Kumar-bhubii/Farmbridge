@@ -67,8 +67,9 @@
         <a href="enquiries.html" class="btn btn-solid">View enquiries</a>
       </div>
     </section>
-        <!-- ===== MORE TOOLS ===== -->
-    <h2 style="margin:34px 0 14px"><span data-i18n="tools">More tools</span> <span class="script-inline">&amp; insights</span></h2>
+
+    <!-- ===== MORE TOOLS ===== -->
+    <h2 style="margin:34px 0 14px" class="tools-title"><span data-i18n="tools">More tools</span> <span class="script-inline">&amp; insights</span></h2>
     <section class="action-grid">
       <div class="action-card"><div class="icon-bubble">💹</div><h3>Reference prices</h3><p>Dated, source-labelled market references with a 14-day trend.</p><a href="prices.html" class="btn btn-solid">Open prices</a></div>
       <div class="action-card"><div class="icon-bubble">🗺️</div><h3>Supply &amp; demand map</h3><p>See crop lots and buyer needs around you on the map.</p><a href="map.html" class="btn btn-solid">Open map</a></div>
@@ -138,12 +139,19 @@
     </div>
   </main>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="firebase-sync.js"></script>
   <script src="auth.js"></script>
   <script src="dashboard.js"></script>
   <script src="data.js"></script>
   <script src="matching.js"></script>
   <script src="buyer.js"></script>
   <script src="demo.js"></script>
+  <script src="translations.js"></script>
   <script src="extras.js"></script>
+  <script src="voice.js"></script>
 </body>
 </html>
