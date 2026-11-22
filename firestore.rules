@@ -1,7 +1,12 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // =====================================================
+    // 1. AUTHENTICATION HELPERS
+    // =====================================================
 
     function signedIn() {
       return request.auth != null;
@@ -15,76 +20,473 @@ service cloud.firestore {
       return signedIn() && request.auth.token.admin == true;
     }
 
-    // User profiles
+    function isParticipant(data) {
+      return signedIn()
+        && (
+          data.buyerUid == request.auth.uid ||
+          data.farmerUid == request.auth.uid
+        );
+    }
+
+    function validRole(role) {
+      return role in ["buyer", "farmer"];
+    }
+
+    // =====================================================
+    // 2. PROFILE VALIDATION
+    // =====================================================
+
+    function validProfile(uid) {
+      let profilePath =
+        /databases/$(database)/documents/users/$(uid);
+
+      return exists(profilePath)
+        && get(profilePath).data.name is string
+        && get(profilePath).data.phone is string;
+    }
+
+    // =====================================================
+    // 3. BUYER-INITIATED ENQUIRY VALIDATION
+    // =====================================================
+
+    function validBuyerEnquiry() {
+      let listingPath =
+        /databases/$(database)/documents/listings/$(request.resource.data.lotId);
+
+      let buyerPath =
+        /databases/$(database)/documents/users/$(request.auth.uid);
+
+      return request.resource.data.initiatorRole == "buyer"
+        && request.resource.data.buyerUid == request.auth.uid
+        && request.resource.data.buyerUid
+          != request.resource.data.farmerUid
+        && request.resource.data.demandId == null
+
+        && exists(listingPath)
+        && exists(buyerPath)
+
+        && get(listingPath).data.farmerUid
+          == request.resource.data.farmerUid
+        && get(listingPath).data.ownerUid
+          == request.resource.data.farmerUid
+        && get(listingPath).data.status == "available"
+        && get(listingPath).data.farmerName
+          == request.resource.data.farmerName
+        && get(listingPath).data.farmerPhone
+          == request.resource.data.farmerPhone
+
+        && get(buyerPath).data.name
+          == request.resource.data.buyerName
+        && get(buyerPath).data.phone
+          == request.resource.data.buyerPhone
+
+        && request.resource.data.quantityKg is number
+        && request.resource.data.quantityKg > 0
+        && request.resource.data.quantityKg
+          <= get(listingPath).data.quantityKg;
+    }
+
+    // =====================================================
+    // 4. FARMER-INITIATED ENQUIRY VALIDATION
+    // =====================================================
+
+    function validFarmerEnquiry() {
+      let listingPath =
+        /databases/$(database)/documents/listings/$(request.resource.data.lotId);
+
+      let demandPath =
+        /databases/$(database)/documents/demands/$(request.resource.data.demandId);
+
+      let farmerPath =
+        /databases/$(database)/documents/users/$(request.auth.uid);
+
+      return request.resource.data.initiatorRole == "farmer"
+        && request.resource.data.farmerUid == request.auth.uid
+        && request.resource.data.buyerUid
+          != request.resource.data.farmerUid
+
+        && request.resource.data.demandId is string
+        && request.resource.data.lotId is string
+
+        && exists(listingPath)
+        && exists(demandPath)
+        && exists(farmerPath)
+
+        && get(listingPath).data.ownerUid == request.auth.uid
+        && get(listingPath).data.farmerUid == request.auth.uid
+        && get(listingPath).data.status == "available"
+
+        && get(farmerPath).data.name
+          == request.resource.data.farmerName
+        && get(farmerPath).data.phone
+          == request.resource.data.farmerPhone
+
+        && get(listingPath).data.farmerName
+          == request.resource.data.farmerName
+        && get(listingPath).data.farmerPhone
+          == request.resource.data.farmerPhone
+
+        && get(demandPath).data.ownerUid
+          == request.resource.data.buyerUid
+        && get(demandPath).data.buyerUid
+          == request.resource.data.buyerUid
+        && get(demandPath).data.status == "open"
+        && get(demandPath).data.buyerName
+          == request.resource.data.buyerName
+        && get(demandPath).data.buyerPhone
+          == request.resource.data.buyerPhone
+
+        && get(listingPath).data.crop
+          == get(demandPath).data.crop
+        && request.resource.data.crop
+          == get(listingPath).data.crop
+
+        && request.resource.data.quantityKg is number
+        && request.resource.data.quantityKg > 0
+        && request.resource.data.quantityKg
+          <= get(listingPath).data.quantityKg
+        && request.resource.data.quantityKg
+          <= get(demandPath).data.quantityKg;
+    }
+
+    // =====================================================
+    // 5. ENQUIRY STATUS TRANSITIONS
+    // =====================================================
+
+    function validEnquiryTransition() {
+      let oldStatus = resource.data.status;
+      let newStatus = request.resource.data.status;
+
+      let actorIsBuyer =
+        request.auth.uid == resource.data.buyerUid;
+
+      let actorIsFarmer =
+        request.auth.uid == resource.data.farmerUid;
+
+      let actorIsInitiator =
+        (
+          resource.data.initiatorRole == "buyer"
+          && actorIsBuyer
+        )
+        ||
+        (
+          resource.data.initiatorRole == "farmer"
+          && actorIsFarmer
+        );
+
+      let actorIsRecipient =
+        (
+          resource.data.initiatorRole == "buyer"
+          && actorIsFarmer
+        )
+        ||
+        (
+          resource.data.initiatorRole == "farmer"
+          && actorIsBuyer
+        );
+
+      let validTransition =
+        (
+          oldStatus == "enquiry"
+          && newStatus in ["discussion", "declined"]
+          && actorIsRecipient
+        )
+        ||
+        (
+          oldStatus == "discussion"
+          && newStatus in ["accepted", "declined"]
+          && actorIsRecipient
+        )
+        ||
+        (
+          oldStatus in ["enquiry", "discussion", "accepted"]
+          && newStatus == "cancelled"
+          && actorIsInitiator
+        )
+        ||
+        (
+          oldStatus == "accepted"
+          && newStatus == "collected"
+          && (actorIsBuyer || actorIsFarmer)
+        )
+        ||
+        (
+          oldStatus == "collected"
+          && newStatus == "completed"
+          && (actorIsBuyer || actorIsFarmer)
+        );
+
+      return validTransition
+        && resource.data.history is list
+        && request.resource.data.history is list
+        && request.resource.data.history.size()
+          == resource.data.history.size() + 1
+        && request.resource.data.history.toSet()
+          .hasAll(resource.data.history.toSet())
+        && request.resource.data.history[
+          resource.data.history.size()
+        ].status == newStatus
+        && request.resource.data.history[
+          resource.data.history.size()
+        ].by == (actorIsBuyer ? "buyer" : "farmer");
+    }
+
+    // =====================================================
+    // 6. USER PROFILES
+    // =====================================================
+
     match /users/{uid} {
-      allow create: if isOwner(uid);
+
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasAll([
+          "name",
+          "phone",
+          "area",
+          "role",
+          "createdAt"
+        ])
+        && request.resource.data.keys().hasOnly([
+          "name",
+          "phone",
+          "area",
+          "role",
+          "createdAt"
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.phone is string
+        && request.resource.data.area is string
+        && validRole(request.resource.data.role)
+        && request.resource.data.createdAt is timestamp;
+
       allow read: if isOwner(uid) || isAdmin();
-      allow update: if isOwner(uid) || isAdmin();
+
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly(["name", "phone", "area"])
+        && request.resource.data.name is string
+        && request.resource.data.phone is string
+        && request.resource.data.area is string;
+
       allow delete: if isAdmin();
     }
 
-    // Crop listings
+    // =====================================================
+    // 7. CROP LISTINGS
+    // =====================================================
+
     match /listings/{listingId} {
+
       allow read: if signedIn();
 
       allow create: if signedIn()
-        && request.resource.data.ownerUid == request.auth.uid;
+        && validProfile(request.auth.uid)
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.farmerUid == request.auth.uid
+        && request.resource.data.farmerName
+          == get(
+            /databases/$(database)/documents/users/$(request.auth.uid)
+          ).data.name
+        && request.resource.data.farmerPhone
+          == get(
+            /databases/$(database)/documents/users/$(request.auth.uid)
+          ).data.phone
+        && request.resource.data.status == "available"
+        && request.resource.data.quantityKg is number
+        && request.resource.data.quantityKg > 0;
 
       allow update: if signedIn()
         && resource.data.ownerUid == request.auth.uid
-        && request.resource.data.ownerUid == resource.data.ownerUid;
+        && resource.data.farmerUid == request.auth.uid
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.farmerUid == resource.data.farmerUid
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly([
+            "crop",
+            "quantityKg",
+            "harvestDate",
+            "area",
+            "grade",
+            "notes",
+            "photo",
+            "status",
+            "updatedAt"
+          ])
+        && request.resource.data.quantityKg is number
+        && request.resource.data.quantityKg > 0
+        && request.resource.data.status in [
+          "available",
+          "reserved",
+          "sold"
+        ];
 
       allow delete: if signedIn()
-        && (resource.data.ownerUid == request.auth.uid || isAdmin());
+        && (
+          resource.data.ownerUid == request.auth.uid
+          || isAdmin()
+        );
     }
 
-    // Buyer requirements
+    // =====================================================
+    // 8. BUYER DEMANDS
+    // =====================================================
+
     match /demands/{demandId} {
+
       allow read: if signedIn();
 
       allow create: if signedIn()
-        && request.resource.data.ownerUid == request.auth.uid;
+        && validProfile(request.auth.uid)
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.buyerUid == request.auth.uid
+        && request.resource.data.buyerName
+          == get(
+            /databases/$(database)/documents/users/$(request.auth.uid)
+          ).data.name
+        && request.resource.data.buyerPhone
+          == get(
+            /databases/$(database)/documents/users/$(request.auth.uid)
+          ).data.phone
+        && request.resource.data.status == "open"
+        && request.resource.data.quantityKg is number
+        && request.resource.data.quantityKg > 0;
 
       allow update: if signedIn()
         && resource.data.ownerUid == request.auth.uid
-        && request.resource.data.ownerUid == resource.data.ownerUid;
+        && resource.data.buyerUid == request.auth.uid
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.buyerUid == resource.data.buyerUid
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly([
+            "crop",
+            "quantityKg",
+            "area",
+            "requiredDate",
+            "quality",
+            "notes",
+            "status",
+            "updatedAt"
+          ])
+        && request.resource.data.quantityKg is number
+        && request.resource.data.quantityKg > 0
+        && request.resource.data.status in [
+          "open",
+          "fulfilled",
+          "closed"
+        ];
 
       allow delete: if signedIn()
-        && (resource.data.ownerUid == request.auth.uid || isAdmin());
+        && (
+          resource.data.ownerUid == request.auth.uid
+          || isAdmin()
+        );
     }
 
-    // Enquiries
+    // =====================================================
+    // 9. ENQUIRIES
+    // =====================================================
+
     match /enquiries/{enquiryId} {
-      allow read: if signedIn()
-        && (
-          resource.data.buyerUid == request.auth.uid ||
-          resource.data.farmerUid == request.auth.uid ||
-          isAdmin()
-        );
+
+      allow read: if isParticipant(resource.data)
+        || isAdmin();
 
       allow create: if signedIn()
+        && request.resource.data.keys().hasAll([
+          "lotId",
+          "demandId",
+          "crop",
+          "quantityKg",
+          "area",
+          "harvestDate",
+          "buyerUid",
+          "buyerPhone",
+          "buyerName",
+          "farmerUid",
+          "farmerPhone",
+          "farmerName",
+          "message",
+          "initiatorRole",
+          "status",
+          "history",
+          "createdAt"
+        ])
+        && request.resource.data.keys().hasOnly([
+          "id",
+          "lotId",
+          "demandId",
+          "crop",
+          "quantityKg",
+          "area",
+          "harvestDate",
+          "buyerUid",
+          "buyerPhone",
+          "buyerName",
+          "farmerUid",
+          "farmerPhone",
+          "farmerName",
+          "message",
+          "initiatorRole",
+          "status",
+          "history",
+          "createdAt"
+        ])
+        && request.resource.data.lotId is string
+        && request.resource.data.buyerUid is string
+        && request.resource.data.farmerUid is string
+        && request.resource.data.buyerUid
+          != request.resource.data.farmerUid
+        && request.resource.data.status == "enquiry"
+        && request.resource.data.quantityKg is number
+        && request.resource.data.quantityKg > 0
+        && request.resource.data.initiatorRole
+          in ["buyer", "farmer"]
+        && request.resource.data.history is list
+        && request.resource.data.history.size() == 1
+        && request.resource.data.history[0].status == "enquiry"
+        && request.resource.data.history[0].by
+          == request.resource.data.initiatorRole
         && (
-          request.resource.data.buyerUid == request.auth.uid ||
-          request.resource.data.farmerUid == request.auth.uid
+          validBuyerEnquiry()
+          || validFarmerEnquiry()
         );
 
-      allow update: if signedIn()
-        && (
-          resource.data.buyerUid == request.auth.uid ||
-          resource.data.farmerUid == request.auth.uid ||
-          isAdmin()
-        );
+      allow update: if isParticipant(resource.data)
+        && request.resource.data.buyerUid == resource.data.buyerUid
+        && request.resource.data.farmerUid == resource.data.farmerUid
+        && request.resource.data.lotId == resource.data.lotId
+        && request.resource.data.demandId == resource.data.demandId
+        && request.resource.data.initiatorRole
+          == resource.data.initiatorRole
+        && request.resource.data.diff(resource.data)
+          .affectedKeys()
+          .hasOnly([
+            "status",
+            "history",
+            "updatedAt"
+          ])
+        && validEnquiryTransition();
 
       allow delete: if isAdmin();
     }
 
-    // Moderation reports
+    // =====================================================
+    // 10. MODERATION REPORTS
+    // =====================================================
+
     match /reports/{reportId} {
-      allow create: if signedIn();
+
+      allow create: if false;
+
       allow read, update, delete: if isAdmin();
     }
 
-    // Deny access to everything not explicitly allowed above
+    // =====================================================
+    // 11. DEFAULT DENY
+    // =====================================================
+
     match /{document=**} {
       allow read, write: if false;
     }

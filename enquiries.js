@@ -217,3 +217,7 @@ list.addEventListener("click", async function (event) {
   }
 });
 
+    render();
+  });
+}
+
