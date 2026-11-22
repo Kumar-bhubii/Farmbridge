@@ -1,12 +1,18 @@
+
 // =========================================================
-// FARMBRIDGE - listings.js  (controls the farmer dashboard)
-// Needs: auth.js, dashboard.js, data.js loaded before it.
-// `user` comes from dashboard.js
+// FARMBRIDGE - listings.js
+// Controls the farmer dashboard.
+// Waits for Firebase authentication and profile loading.
 // =========================================================
 
-if (user) {
+window.FB_USER_READY.then(function (readyUser) {
+
+  if (!readyUser || readyUser.role !== "farmer") return;
+
+  const user = readyUser;
 
   // ---------- grab page elements ----------
+
   const formSection = document.getElementById("form-section");
   const listingForm = document.getElementById("listing-form");
   const openBtn = document.getElementById("open-form");
@@ -20,31 +26,36 @@ if (user) {
   const listingGrid = document.getElementById("listing-grid");
   const emptyState = document.getElementById("empty-state");
 
-  let photoData = ""; // resized photo (as text) waiting to be saved
+  let photoData = "";
 
   // ---------- small helpers ----------
-  // Makes user-typed text safe to show on the page
+
   function escapeHtml(text) {
     const div = document.createElement("div");
-    div.textContent = text;
+    div.textContent = text ?? "";
     return div.innerHTML;
   }
 
-  // "2026-12-05" -> "5 Dec 2026"
   function prettyDate(iso) {
     const d = new Date(iso + "T00:00:00");
-    return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+    return d.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
   }
 
-  // today as YYYY-MM-DD (so the date picker blocks past dates)
   function todayString() {
     const d = new Date();
     const m = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
+
     return d.getFullYear() + "-" + m + "-" + day;
   }
 
-  // ---------- fill the crop dropdown ----------
+  // ---------- fill crop dropdown ----------
+
   CROPS.forEach(function (c) {
     const option = document.createElement("option");
     option.value = c.id;
@@ -54,11 +65,16 @@ if (user) {
 
   harvestInput.min = todayString();
 
-  // ---------- show / hide the form ----------
+  // ---------- show / hide form ----------
+
   function openForm() {
-    areaInput.value = user.area; // pre-fill with their village
+    areaInput.value = user.area || "";
     formSection.hidden = false;
-    formSection.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    formSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   }
 
   function closeForm() {
@@ -72,9 +88,11 @@ if (user) {
   openBtn.addEventListener("click", openForm);
   cancelBtn.addEventListener("click", closeForm);
 
-  // ---------- photo: shrink it so it fits in browser storage ----------
+  // ---------- photo resizing ----------
+
   photoInput.addEventListener("change", function () {
     const file = photoInput.files[0];
+
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
@@ -85,57 +103,88 @@ if (user) {
     }
 
     const reader = new FileReader();
+
     reader.onload = function (e) {
       const img = new Image();
+
       img.onload = function () {
         const maxWidth = 500;
         const scale = Math.min(1, maxWidth / img.width);
+
         const canvas = document.createElement("canvas");
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
-        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        canvas.getContext("2d").drawImage(
+          img,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
 
         photoData = canvas.toDataURL("image/jpeg", 0.7);
         photoPreview.src = photoData;
         photoPreview.hidden = false;
       };
+
       img.src = e.target.result;
     };
+
     reader.readAsDataURL(file);
   });
 
-  // ---------- submit the form ----------
-  listingForm.addEventListener("submit", function (event) {
-    event.preventDefault();
+  // ---------- submit listing form ----------
 
-    const result = addListing({
-      crop: cropSelect.value,
-      quantityKg: document.getElementById("quantity").value,
-      harvestDate: harvestInput.value,
-      area: areaInput.value,
-      grade: document.getElementById("grade").value,
-      notes: document.getElementById("notes").value,
-      photo: photoData
-    }, user);
+  listingForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
 
-    if (!result.ok) {
-      formMessage.textContent = result.error;
-      formMessage.hidden = false;
-      return;
-    }
+  const submitButton = listingForm.querySelector(
+    'button[type="submit"]'
+  );
 
-    closeForm();
-    renderListings();
-  });
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = "Saving...";
+  }
 
-  // ---------- show all of this farmer's lots ----------
+  const result = await addListing({
+    crop: cropSelect.value,
+    quantityKg: document.getElementById("quantity").value,
+    harvestDate: harvestInput.value,
+    area: areaInput.value,
+    grade: document.getElementById("grade").value,
+    notes: document.getElementById("notes").value,
+    photo: photoData
+  }, user);
+
+  if (submitButton) {
+    submitButton.disabled = false;
+    submitButton.textContent = "Publish listing";
+  }
+
+  if (!result.ok) {
+    formMessage.textContent = result.error;
+    formMessage.hidden = false;
+    return;
+  }
+
+  closeForm();
+  renderListings();
+});
+
+  // ---------- render farmer listings ----------
+
   function renderListings() {
     const lots = getListingsByFarmer(user.phone);
 
-    // update the dashboard number
     document.getElementById("stat-listings").textContent = lots.length;
-    document.getElementById("stat-matches").textContent = countMatchedDemandsForFarmer(user.phone);
-    document.getElementById("stat-enquiries").textContent = countActiveEnquiries(user.phone);
+
+    document.getElementById("stat-matches").textContent =
+      countMatchedDemandsForFarmer(user.phone);
+
+    document.getElementById("stat-enquiries").textContent =
+      countActiveEnquiries(user.phone);
 
     emptyState.hidden = lots.length > 0;
     listingGrid.innerHTML = "";
@@ -143,33 +192,53 @@ if (user) {
     lots.forEach(function (lot) {
       const crop = cropInfo(lot.crop);
       const card = document.createElement("article");
+
       card.className = "listing-card";
 
       const photoHtml = lot.photo
-        ? '<img src="' + lot.photo + '" alt="' + escapeHtml(crop.name) + '">'
-        : '<span class="listing-emoji">' + crop.emoji + "</span>";
+        ? '<img src="' + lot.photo + '" alt="' +
+          escapeHtml(crop.name) + '">'
+        : '<span class="listing-emoji">' +
+          crop.emoji + "</span>";
 
       card.innerHTML =
         '<div class="listing-photo">' + photoHtml + "</div>" +
         '<div class="listing-body">' +
           '<div class="listing-top">' +
-            "<h3>" + crop.emoji + " " + escapeHtml(crop.name) + "</h3>" +
-            '<span class="badge ' + lot.status + '">' + lot.status + "</span>" +
+            "<h3>" + crop.emoji + " " +
+            escapeHtml(crop.name) + "</h3>" +
+            '<span class="badge ' + lot.status + '">' +
+            escapeHtml(lot.status) + "</span>" +
           "</div>" +
-          '<p class="listing-qty">' + lot.quantityKg + " kg</p>" +
+          '<p class="listing-qty">' +
+          lot.quantityKg + " kg</p>" +
           '<ul class="listing-meta">' +
-            "<li>📅 Harvest: " + prettyDate(lot.harvestDate) + "</li>" +
+            "<li>📅 Harvest: " +
+            prettyDate(lot.harvestDate) + "</li>" +
             "<li>📍 " + escapeHtml(lot.area) + "</li>" +
-            (lot.grade ? "<li>⭐ Quality (self-reported): " + escapeHtml(lot.grade) + "</li>" : "") +
-            (lot.notes ? "<li>📝 " + escapeHtml(lot.notes) + "</li>" : "") +
+            (lot.grade
+              ? "<li>⭐ Quality (self-reported): " +
+                escapeHtml(lot.grade) + "</li>"
+              : "") +
+            (lot.notes
+              ? "<li>📝 " + escapeHtml(lot.notes) + "</li>"
+              : "") +
           "</ul>" +
           '<div class="listing-actions">' +
-            '<select class="status-select" data-id="' + lot.id + '">' +
-              '<option value="available"' + (lot.status === "available" ? " selected" : "") + ">Available</option>" +
-              '<option value="reserved"' + (lot.status === "reserved" ? " selected" : "") + ">Reserved</option>" +
-              '<option value="sold"' + (lot.status === "sold" ? " selected" : "") + ">Sold</option>" +
+            '<select class="status-select" data-id="' +
+            lot.id + '">' +
+              '<option value="available"' +
+              (lot.status === "available" ? " selected" : "") +
+              ">Available</option>" +
+              '<option value="reserved"' +
+              (lot.status === "reserved" ? " selected" : "") +
+              ">Reserved</option>" +
+              '<option value="sold"' +
+              (lot.status === "sold" ? " selected" : "") +
+              ">Sold</option>" +
             "</select>" +
-            '<button class="btn-delete" data-id="' + lot.id + '" type="button">Delete</button>' +
+            '<button class="btn-delete" data-id="' +
+            lot.id + '" type="button">Delete</button>' +
           "</div>" +
         "</div>";
 
@@ -177,13 +246,20 @@ if (user) {
     });
   }
 
-  // status dropdown + delete button (one listener handles all cards)
+  // ---------- status update ----------
+
   listingGrid.addEventListener("change", function (event) {
     if (event.target.classList.contains("status-select")) {
-      updateListingStatus(event.target.dataset.id, event.target.value);
+      updateListingStatus(
+        event.target.dataset.id,
+        event.target.value
+      );
+
       renderListings();
     }
   });
+
+  // ---------- delete listing ----------
 
   listingGrid.addEventListener("click", function (event) {
     if (event.target.classList.contains("btn-delete")) {
@@ -194,6 +270,10 @@ if (user) {
     }
   });
 
-  // first draw when the page opens
+  // ---------- initial display ----------
+
   renderListings();
-}
+
+}).catch(function (error) {
+  console.error("Farmer dashboard initialization failed:", error);
+});

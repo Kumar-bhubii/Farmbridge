@@ -4,7 +4,10 @@
 // The scoring itself lives in matching.js; this file only shows it.
 // =========================================================
 
-if (user) {
+window.FB_USER_READY.then(function (readyUser) {
+  if (!readyUser || readyUser.role !== "buyer") return;
+
+  const user = readyUser;
 
   const picker = document.getElementById("picker");
   const select = document.getElementById("demand-select");
@@ -127,4 +130,4 @@ if (user) {
 
   select.addEventListener("change", render);
   init();
-}
+});

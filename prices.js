@@ -1,5 +1,7 @@
 // FARMBRIDGE - prices.js
 // Dated, source-labelled reference prices + 14-day trend chart.
+window.FB_USER_READY.then(function (readyUser) {
+  if (!readyUser) return;
 const PRICE_BASE = {
   tomato:  { price: 24, market: "Bankura Regulated Market" },
   potato:  { price: 16, market: "Bishnupur Market" },
@@ -73,3 +75,4 @@ function drawTrend(cropId) {
 }
 select.addEventListener("change", function () { drawTrend(select.value); });
 drawTrend(select.value);
+});

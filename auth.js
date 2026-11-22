@@ -1,86 +1,170 @@
+
 // =========================================================
 // FARMBRIDGE - auth.js
-// Handles accounts and login sessions.
-// For now data is stored in the browser (localStorage).
-// In Step 6 we will replace the inside of these functions
-// with Firebase Authentication. The rest of the app will not change.
+// Firebase Authentication and user profiles.
+// Waits for Firebase authentication to initialize.
 // =========================================================
 
-const FB_USERS_KEY = "fb_users";      // list of all accounts
-const FB_SESSION_KEY = "fb_session";  // phone number of logged-in user
+const FB_SESSION_KEY = "fb_session";
 
-// ---------- helpers ----------
-function getUsers() {
-  try {
-    return JSON.parse(localStorage.getItem(FB_USERS_KEY)) || [];
-  } catch (e) {
-    return [];
-  }
-}
+let FB_AUTH_READY_PROMISE = null;
 
-function saveUsers(users) {
-  localStorage.setItem(FB_USERS_KEY, JSON.stringify(users));
-}
-
-// ---------- sign up ----------
-// Returns { ok: true, user } or { ok: false, error: "message" }
-function signupUser(data) {
-  const name = data.name.trim();
-  const phone = data.phone.trim();
-  const area = data.area.trim();
-
-  if (name.length < 2) return { ok: false, error: "Please enter your full name." };
-  if (!/^[0-9]{10}$/.test(phone)) return { ok: false, error: "Phone number must be exactly 10 digits." };
-  if (area.length < 2) return { ok: false, error: "Please enter your village / town." };
-  if (data.password.length < 6) return { ok: false, error: "Password must be at least 6 characters." };
-  if (data.role !== "farmer" && data.role !== "buyer") return { ok: false, error: "Please choose Farmer or Buyer." };
-
-  const users = getUsers();
-  if (users.some(function (u) { return u.phone === phone; })) {
-    return { ok: false, error: "This phone number is already registered. Please log in." };
+// Wait until Firebase restores the saved login session.
+function waitForFirebaseAuthReady() {
+  if (!window.fbAuth) {
+    return Promise.reject(
+      new Error("Firebase Authentication is unavailable.")
+    );
   }
 
-  const user = {
-    id: "u_" + Date.now(),
-    name: name,
-    phone: phone,
-    area: area,
-    role: data.role,
-    password: data.password, // NOTE: prototype only. Firebase will secure this later.
-    createdAt: new Date().toISOString()
+  if (!FB_AUTH_READY_PROMISE) {
+    FB_AUTH_READY_PROMISE = new Promise(function (resolve, reject) {
+      let unsubscribe = function () {};
+
+      unsubscribe = window.fbAuth.onAuthStateChanged(
+        function (user) {
+          unsubscribe();
+          resolve(user);
+        },
+        function (error) {
+          unsubscribe();
+          reject(error);
+        }
+      );
+    });
+  }
+
+  return FB_AUTH_READY_PROMISE;
+}
+
+// Convert phone number into a Firebase-compatible email.
+// This is email/password authentication, NOT SMS verification.
+function emailFor(phone) {
+  const cleanPhone = String(phone).replace(/\D/g, "");
+
+  if (cleanPhone.length < 10) {
+    throw new Error("Please enter a valid phone number.");
+  }
+
+  return cleanPhone + "@farmbridge.app";
+}
+
+// Get the current Firebase user.
+function getFirebaseUser() {
+  return window.fbAuth ? window.fbAuth.currentUser : null;
+}
+
+// Get a user's profile from Firestore.
+async function getUserProfile(uid) {
+  if (!window.fbDb) {
+    throw new Error("Firebase database is unavailable.");
+  }
+
+  const doc = await window.fbDb.collection("users").doc(uid).get();
+
+  return doc.exists ? { uid, ...doc.data() } : null;
+}
+
+// Register a new user.
+async function signupUser(data) {
+  await waitForFirebaseAuthReady();
+
+  const { name, phone, area, password, role } = data;
+
+  if (!name || !phone || !area || !password) {
+    throw new Error("Please fill in all required fields.");
+  }
+
+  if (password.length < 6) {
+    throw new Error("Password must contain at least 6 characters.");
+  }
+
+  if (!["farmer", "buyer"].includes(role)) {
+    throw new Error("Please select a valid account type.");
+  }
+
+  const email = emailFor(phone);
+
+  const credential = await window.fbAuth.createUserWithEmailAndPassword(
+    email,
+    password
+  );
+
+  const profile = {
+    name: name.trim(),
+    phone: String(phone).replace(/\D/g, ""),
+    area: area.trim(),
+    role,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
 
-  users.push(user);
-  saveUsers(users);
-  localStorage.setItem(FB_SESSION_KEY, user.phone);
-  return { ok: true, user: user };
+  try {
+    await window.fbDb.collection("users")
+      .doc(credential.user.uid)
+      .set(profile);
+  } catch (error) {
+    try {
+      await credential.user.delete();
+    } catch (deleteError) {
+      console.error("Account cleanup failed:", deleteError);
+    }
+
+    throw error;
+  }
+
+  return {
+    uid: credential.user.uid,
+    ...profile
+  };
 }
 
-// ---------- log in ----------
-function loginUser(phone, password) {
-  const user = getUsers().find(function (u) {
-    return u.phone === phone.trim() && u.password === password;
-  });
+// Login an existing user.
+async function loginUser(phone, password) {
+  await waitForFirebaseAuthReady();
 
-  if (!user) return { ok: false, error: "Wrong phone number or password." };
+  const email = emailFor(phone);
 
-  localStorage.setItem(FB_SESSION_KEY, user.phone);
-  return { ok: true, user: user };
+  const credential = await window.fbAuth.signInWithEmailAndPassword(
+    email,
+    password
+  );
+
+  const profile = await getUserProfile(credential.user.uid);
+
+  if (!profile) {
+    await window.fbAuth.signOut();
+    throw new Error("Your account profile was not found.");
+  }
+
+  return profile;
 }
 
-// ---------- who is logged in? ----------
-function getCurrentUser() {
-  const phone = localStorage.getItem(FB_SESSION_KEY);
-  if (!phone) return null;
-  return getUsers().find(function (u) { return u.phone === phone; }) || null;
+// Get the current user's profile.
+async function getCurrentUser() {
+  await waitForFirebaseAuthReady();
+
+  const firebaseUser = getFirebaseUser();
+
+  if (!firebaseUser) {
+    return null;
+  }
+
+  return await getUserProfile(firebaseUser.uid);
 }
 
-// ---------- log out ----------
-function logoutUser() {
+// Logout.
+async function logoutUser() {
+  if (window.fbAuth) {
+    await window.fbAuth.signOut();
+  }
+
   localStorage.removeItem(FB_SESSION_KEY);
 }
 
-// ---------- send user to the right dashboard ----------
+// Select the correct dashboard.
 function dashboardFor(user) {
-  return user.role === "farmer" ? "farmer.html" : "buyer.html";
+  return user && user.role === "farmer"
+    ? "farmer.html"
+    : "buyer.html";
 }
+

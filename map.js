@@ -1,4 +1,6 @@
 // FARMBRIDGE - map.js  (Leaflet + OpenStreetMap, town-level pins only)
+window.FB_USER_READY.then(function (readyUser) {
+  if (!readyUser) return;
 const cropSel = document.getElementById("m-crop");
 const showSel = document.getElementById("m-show");
 cropSel.innerHTML += CROPS.map(function (c) { return '<option value="' + c.id + '">' + c.emoji + " " + c.name + "</option>"; }).join("");
@@ -49,3 +51,4 @@ function render() {
 cropSel.addEventListener("change", render);
 showSel.addEventListener("change", render);
 render();
+});

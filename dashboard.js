@@ -1,45 +1,84 @@
+
 // =========================================================
 // FARMBRIDGE - dashboard.js
-// Used by farmer.html and buyer.html.
-// 1. Blocks people who are not logged in
-// 2. Blocks a buyer from opening the farmer page (and vice versa)
-// 3. Fills in the user's name and handles logout
+// Waits for Firebase authentication AND Firestore data.
 // =========================================================
 
-const user = getCurrentUser();
-const pageRole = document.body.dataset.role; // "farmer" or "buyer"
+let user = null;
 
-if (!user) {
-  // not logged in -> go to login
-  window.location.href = "login.html";
-} else if (pageRole !== "any" && user.role !== pageRole) {
-  // wrong dashboard -> send to the correct one
-  window.location.href = dashboardFor(user);
-} else {
-  // fill in every element marked data-user="name" / "area" / "phone"
-  document.querySelectorAll("[data-user]").forEach(function (el) {
-    el.textContent = user[el.dataset.user];
-  });
+const pageRole = document.body.dataset.role || "any";
 
-  // avatar emoji and "back to dashboard" links adapt to the role
-  document.querySelectorAll("[data-avatar]").forEach(function (el) {
-    el.textContent = user.role === "farmer" ? "🌾" : "🛒";
-  });
-  document.querySelectorAll("[data-back]").forEach(function (el) {
-    el.href = dashboardFor(user);
-  });
+window.FB_USER_READY = (async function () {
+  try {
+    // First, check the Firebase login session.
+    const loggedInUser = await getCurrentUser();
 
-  // first name for greeting
-  document.querySelectorAll("[data-first-name]").forEach(function (el) {
-    el.textContent = user.name.split(" ")[0];
-  });
-}
+    if (!loggedInUser) {
+      window.location.href = "login.html";
+      return null;
+    }
 
-// ---------- logout ----------
+    // Then wait for Firestore records to load.
+    if (window.FB_DATA_READY) {
+      await window.FB_DATA_READY;
+    }
+
+    // Check the role required by this page.
+    if (pageRole !== "any" && loggedInUser.role !== pageRole) {
+      window.location.href = dashboardFor(loggedInUser);
+      return null;
+    }
+
+    user = loggedInUser;
+    window.FB_CURRENT_USER = loggedInUser;
+
+    // Display profile information.
+    document.querySelectorAll("[data-user]").forEach(function (el) {
+      const field = el.dataset.user;
+      el.textContent = loggedInUser[field] || "";
+    });
+
+    // Display role-based avatar.
+    document.querySelectorAll("[data-avatar]").forEach(function (el) {
+      el.textContent =
+        loggedInUser.role === "farmer" ? "🌾" : "🛒";
+    });
+
+    // Update dashboard navigation.
+    document.querySelectorAll("[data-back]").forEach(function (el) {
+      el.href = dashboardFor(loggedInUser);
+    });
+
+    // Display first name.
+    document.querySelectorAll("[data-first-name]").forEach(function (el) {
+      el.textContent = (loggedInUser.name || "").split(" ")[0];
+    });
+
+    return loggedInUser;
+
+  } catch (error) {
+    console.error("Dashboard initialization failed:", error);
+    alert("Unable to load your FarmBridge account. Please log in again.");
+    window.location.href = "login.html";
+    return null;
+  }
+})();
+
+// ---------- Logout ----------
 const logoutBtn = document.getElementById("logout");
+
 if (logoutBtn) {
-  logoutBtn.addEventListener("click", function () {
-    logoutUser();
-    window.location.href = "index.html";
+  logoutBtn.addEventListener("click", async function () {
+    logoutBtn.disabled = true;
+
+    try {
+      await logoutUser();
+      window.location.href = "index.html";
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("Unable to log out. Please try again.");
+      logoutBtn.disabled = false;
+    }
   });
 }
+
