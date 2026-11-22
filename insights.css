@@ -1,0 +1,72 @@
+
+/* =========================================================
+   FARMBRIDGE - insights.css
+   Dedicated styling for Demand Insights charts.
+   ========================================================= */
+
+/* Chart panels */
+
+.fb-panel {
+  min-width: 0;
+  position: relative;
+}
+
+/* Fixed chart container dimensions */
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  min-height: 280px;
+  max-height: 280px;
+}
+
+/* Doughnut chart */
+
+.chart-container.chart-doughnut {
+  height: 280px;
+  min-height: 280px;
+  max-height: 280px;
+}
+
+/* Timeline chart */
+
+.chart-container.chart-timeline {
+  height: 240px;
+  min-height: 240px;
+  max-height: 240px;
+  margin-top: 10px;
+}
+
+/* Canvas sizing */
+
+.chart-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+}
+
+/* Responsive layout */
+
+@media (max-width: 600px) {
+
+  .chart-container {
+    height: 250px;
+    min-height: 250px;
+    max-height: 250px;
+  }
+
+  .chart-container.chart-doughnut {
+    height: 260px;
+    min-height: 260px;
+    max-height: 260px;
+  }
+
+  .chart-container.chart-timeline {
+    height: 220px;
+    min-height: 220px;
+    max-height: 220px;
+  }
+
+}
